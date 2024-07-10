@@ -17,9 +17,9 @@ public struct CachedImage<Placeholder: View, Content: View>: View {
 
     public init(
         url: URL?,
+        preload: Bool = false,
         content: @escaping (Image) -> Content,
-        placeholder: @escaping () -> Placeholder,
-        preload: Bool = false
+        placeholder: @escaping () -> Placeholder
     ) {
         self.url = url
         self.content = content
