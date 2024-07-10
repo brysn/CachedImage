@@ -18,7 +18,8 @@ public struct CachedImage<Placeholder: View, Content: View>: View {
     public init(
         url: URL?,
         content: @escaping (Image) -> Content,
-        placeholder: @escaping () -> Placeholder
+        placeholder: @escaping () -> Placeholder,
+        preload: Bool = false
     ) {
         self.url = url
         self.content = content
@@ -26,15 +27,22 @@ public struct CachedImage<Placeholder: View, Content: View>: View {
         _loader = StateObject(
             wrappedValue: ImageLoader()
         )
+        if preload {
+            load()
+        }
+    }
+    
+    private func load() {
+        loader.setCache(cache: _imageCache.wrappedValue)
+        if let url = url {
+            loader.load(url: url)
+        }
     }
 
     public var body: some View {
         contentOrImage
             .onAppear {
-                loader.setCache(cache: _imageCache.wrappedValue)
-                if let url = url {
-                    loader.load(url: url)
-                }
+                load()
             }
             .onChange(of: url) { newUrl in
                 if let url = newUrl {
