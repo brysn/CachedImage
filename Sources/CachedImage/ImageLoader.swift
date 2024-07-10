@@ -9,7 +9,7 @@
 import Combine
 import SwiftUI
 
-class ImageLoader: ObservableObject {
+public class ImageLoader: ObservableObject {
     @Published var image: PlatformImage?
 
     private(set) var isLoading = false
@@ -19,19 +19,21 @@ class ImageLoader: ObservableObject {
 
     private static let imageProcessingQueue = DispatchQueue(label: "image-processing")
 
-    init() {
+    public init(cache: ImageCache, url: URL? = nil) {
+        self.cache = cache
+        if url != nil {
+            load(url: url!)
+        }
     }
 
     deinit {
         cancel()
     }
 
-    func setCache(cache: ImageCache? = nil) {
-        self.cache = cache
-    }
-
     func load(url: URL) {
-        guard !isLoading else { return }
+        guard !isLoading else {
+            return
+        }
 
         if let image = cache?[url] {
             self.image = image

@@ -8,15 +8,17 @@
 
 import SwiftUI
 
+private let defaultCache = DefaultImageCache()
+
 public struct CachedImage<Placeholder: View, Content: View>: View {
     private let url: URL?
     private let content: (Image) -> Content
     private let placeholder: Placeholder
     @StateObject private var loader: ImageLoader
-    @Environment(\.imageCache) var imageCache
 
     public init(
         url: URL?,
+        cache: ImageCache? = nil,
         preload: Bool = false,
         content: @escaping (Image) -> Content,
         placeholder: @escaping () -> Placeholder
@@ -25,24 +27,16 @@ public struct CachedImage<Placeholder: View, Content: View>: View {
         self.content = content
         self.placeholder = placeholder()
         _loader = StateObject(
-            wrappedValue: ImageLoader()
+            wrappedValue: ImageLoader(cache: cache ?? defaultCache, url: preload ? url : nil)
         )
-        if preload {
-            load()
-        }
-    }
-    
-    private func load() {
-        loader.setCache(cache: _imageCache.wrappedValue)
-        if let url = url {
-            loader.load(url: url)
-        }
     }
 
     public var body: some View {
         contentOrImage
             .onAppear {
-                load()
+                if let url = url {
+                    loader.load(url: url)
+                }
             }
             .onChange(of: url) { newUrl in
                 if let url = newUrl {
