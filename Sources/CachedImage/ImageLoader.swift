@@ -16,6 +16,7 @@ public class ImageLoader: ObservableObject {
 
     private var cache: ImageCache?
     private var cancellable: AnyCancellable?
+    private var url: URL?
 
     private static let imageProcessingQueue = DispatchQueue(label: "image-processing")
 
@@ -24,6 +25,7 @@ public class ImageLoader: ObservableObject {
         if url != nil {
             load(url: url!)
         }
+        self.url = url
     }
 
     deinit {
@@ -32,6 +34,10 @@ public class ImageLoader: ObservableObject {
 
     func load(url: URL) {
         guard !isLoading else {
+            return
+        }
+        
+        if self.url != nil && self.url == url {
             return
         }
 
