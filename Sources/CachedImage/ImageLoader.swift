@@ -40,6 +40,8 @@ public class ImageLoader: ObservableObject {
         if self.url != nil && self.url == url {
             return
         }
+        
+        self.url = url
 
         if let image = cache?[url] {
             self.image = image
